@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Trumpet</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --ink:#0d0d10;
+    --ink-muted:#6b6b72;
+    --card:#0a0a0b;
+    --card-border:#232326;
+    --on-card:#ffffff;
+    --on-card-muted:#b7b7bd;
+    --blue:#2f6fed;
+    --blue-tint:rgba(47,111,237,0.12);
+    --green:#1fa34f;
+    --green-tint:rgba(31,163,79,0.14);
+    --red:#e5484d;
+    --radius-lg:20px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --maxw:480px;
+    --pad-h:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  #app{max-width:var(--maxw);margin:0 auto;min-height:100vh;background:var(--bg);position:relative;}
+  a{color:var(--blue);text-decoration:none;}
+  .hidden{display:none !important;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:20px var(--pad-h) 2px var(--pad-h);}
+  .brand-heading{font-weight:800;font-size:28px;color:var(--ink);letter-spacing:-0.6px;line-height:1.1;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding-top:4px;}
+  .donate-link{font-size:13px;font-weight:700;color:var(--red);background:none;border:none;cursor:pointer;padding:6px 2px;}
+  .login-btn{font-size:12.5px;font-weight:700;color:var(--ink);background:transparent;border:1.4px solid var(--ink);
+    border-radius:20px;padding:7px 14px;cursor:pointer;white-space:nowrap;}
+  .login-btn:hover{background:var(--ink);color:#fff;}
+  .home-sub{padding:2px var(--pad-h) 10px var(--pad-h);color:var(--ink-muted);font-size:13.5px;font-weight:600;}
+
+  /* ---------- COMPANY AVATARS ---------- */
+  .companies-row{display:flex;gap:16px;padding:6px var(--pad-h) 10px var(--pad-h);overflow-x:auto;scrollbar-width:none;}
+  .companies-row::-webkit-scrollbar{display:none;}
+  .company-card{flex:0 0 auto;width:76px;text-align:center;cursor:pointer;}
+  .company-avatar-wrap{width:64px;height:64px;border-radius:50%;border:2.5px solid var(--blue);padding:3px;
+    margin:0 auto 8px auto;transition:box-shadow .15s ease;}
+  .company-card.active .company-avatar-wrap{box-shadow:0 0 0 3px var(--blue-tint);}
+  .company-avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--card);
+    display:flex;align-items:center;justify-content:center;}
+  .company-avatar img{width:100%;height:100%;object-fit:cover;}
+  .company-avatar span{color:#fff;font-weight:800;font-size:9.5px;letter-spacing:0.3px;}
+  .company-name{font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---------- FEATURED CATEGORY CARDS ---------- */
+  .categories-scroll{display:flex;gap:12px;padding:6px var(--pad-h) 4px var(--pad-h);overflow-x:auto;scrollbar-width:none;}
+  .categories-scroll::-webkit-scrollbar{display:none;}
+  .category-card{position:relative;flex:0 0 auto;width:148px;height:186px;border-radius:20px;overflow:hidden;
+    cursor:pointer;background:linear-gradient(160deg,#2a2a2e,#0a0a0b);}
+  .category-card.active{outline:2.5px solid var(--blue);outline-offset:2px;}
+  .category-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+  .category-card-shade{position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0) 58%);}
+  .category-card-label{position:absolute;left:14px;bottom:14px;right:14px;z-index:2;}
+  .category-card-tag{font-size:10px;font-weight:800;letter-spacing:0.6px;color:#a9c6ff;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .category-card-name{font-size:18px;font-weight:800;color:#fff;line-height:1.2;}
+
+  .section-row{display:flex;align-items:center;justify-content:space-between;padding:22px var(--pad-h) 14px var(--pad-h);}
+  .section-row h2{margin:0;font-size:19px;font-weight:800;color:var(--ink);}
+  .section-row a{font-size:13.5px;font-weight:600;}
+
+  /* ---------- NEWS LIST ---------- */
+  .news-list{display:flex;flex-direction:column;padding:0 var(--pad-h);}
+  .news-item{display:flex;gap:14px;align-items:flex-start;cursor:pointer;padding:16px 0;border-bottom:1px solid #ececec;}
+  .news-item:first-child{padding-top:0;}
+  .news-item:last-child{border-bottom:none;}
+  .news-thumb{width:96px;height:96px;border-radius:14px;overflow:hidden;flex:0 0 auto;background:#eceeef;}
+  .news-thumb img{width:100%;height:100%;object-fit:cover;}
+  .news-info{flex:1;min-width:0;padding-top:2px;}
+  .news-category{font-size:11px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;
+    display:inline-block;padding-bottom:5px;border-bottom:2px solid var(--blue);margin-bottom:9px;}
+  .news-title{font-size:16.5px;font-weight:800;color:var(--ink);line-height:1.32;margin:0 0 9px 0;}
+  .news-meta{font-size:12px;color:var(--ink-muted);font-weight:600;}
+
+  .empty-state{padding:40px 20px;text-align:center;color:var(--ink-muted);font-size:14px;}
+  .empty-state svg{margin-bottom:10px;opacity:0.5;}
+
+  /* ---------- DETAIL ---------- */
+  .detail-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 4px 14px;}
+  .icon-btn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;color:var(--ink);cursor:pointer;}
+  .icon-btn:hover{background:rgba(0,0,0,0.06);}
+  .icon-btn.icon-back{color:var(--blue);}
+  .topbar-right{display:flex;gap:6px;}
+
+  .detail-content{padding:8px 18px 100px 18px;}
+  .badge-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .badge-new{background:var(--green-tint);color:var(--green);font-size:10.5px;font-weight:700;padding:4px 8px;
+    border-radius:6px;letter-spacing:0.3px;border:1px solid rgba(31,163,79,0.35);}
+  .badge-category{background:var(--blue-tint);color:var(--blue);font-size:10px;font-weight:700;padding:4px 8px;
+    border-radius:6px;letter-spacing:0.3px;border:1px solid rgba(47,111,237,0.35);text-transform:uppercase;}
+  .detail-content h1{font-size:25px;line-height:1.28;margin:0 0 10px 0;font-weight:800;letter-spacing:-0.3px;color:var(--ink);}
+  .detail-sub{color:var(--ink-muted);font-size:15px;line-height:1.55;margin:0 0 10px 0;}
+  .detail-meta{color:var(--ink-muted);font-size:12.5px;font-weight:600;margin:0 0 16px 0;}
+
+  .prepared-by{display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:var(--card);border:1px solid var(--card-border);
+    border-radius:12px;padding:11px 14px;margin-bottom:20px;font-size:13.5px;color:var(--on-card-muted);}
+  .prepared-by .pb-name{font-weight:700;color:var(--on-card);}
+  .verify-tick{width:15px;height:15px;border-radius:50%;background:var(--blue);display:inline-flex;
+    align-items:center;justify-content:center;}
+  .verify-tick svg{width:9px;height:9px;}
+
+  .cover-image{width:100%;border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px;background:#eceeef;
+    border:1px solid var(--card-border);}
+  .cover-image img{width:100%;display:block;}
+
+  .article-body p{color:var(--ink-muted);font-size:15px;line-height:1.7;margin:0 0 16px 0;}
+
+  .inline-image{border-radius:var(--radius-md);overflow:hidden;margin-bottom:18px;background:#eceeef;
+    border:1px solid var(--card-border);}
+  .inline-image img{width:100%;display:block;}
+  .inline-image figcaption{margin:0;padding:8px 10px;font-size:12px;color:var(--ink-muted);text-align:center;background:var(--card);}
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:var(--maxw);
+    background:#fafafa;border-top:1px solid #e9e9ea;display:flex;justify-content:space-around;
+    padding:9px 6px 12px 6px;z-index:40;}
+  .nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:var(--ink-muted);font-size:10.5px;font-weight:700;cursor:pointer;padding:4px 16px;}
+  .nav-btn.active{color:var(--ink);}
+  .nav-btn svg{width:21px;height:21px;}
+  .nav-btn[data-nav="home"] svg{color:var(--blue);}
+  .nav-spacer{height:82px;}
+
+  /* ---------- ADMIN (shared) ---------- */
+  .admin-header{padding:20px var(--pad-h) 10px var(--pad-h);display:flex;align-items:center;justify-content:space-between;}
+  .admin-header h1{font-size:21px;margin:0;font-weight:700;color:var(--ink);}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;
+    font-weight:700;cursor:pointer;}
+  .btn:hover{background:#000000;}
+  .btn-danger{background:transparent;color:#c0392b;border:1px solid rgba(192,57,43,0.35);}
+  .btn-danger:hover{background:rgba(192,57,43,0.06);}
+  .btn-block{width:100%;}
+  .btn-row{display:flex;gap:10px;}
+
+  .admin-list{padding:6px var(--pad-h) 100px var(--pad-h);display:flex;flex-direction:column;gap:10px;}
+  .admin-row{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px;
+    display:flex;gap:12px;align-items:center;}
+  .admin-row img{width:54px;height:54px;border-radius:8px;object-fit:cover;background:#19191c;flex:0 0 auto;}
+  .admin-row .ar-info{flex:1;min-width:0;}
+  .admin-row .ar-info h4{margin:0 0 3px 0;font-size:14px;font-weight:700;color:var(--on-card);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .admin-row .ar-info span{font-size:12px;color:var(--on-card-muted);}
+  .admin-row .ar-actions{display:flex;gap:6px;}
+  .icon-sm{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.16);background:transparent;
+    color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;}
+  .icon-sm:hover{background:rgba(255,255,255,0.08);}
+
+  .admin-form{padding:6px var(--pad-h) 40px var(--pad-h);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:7px;}
+  .field .hint{font-weight:400;color:var(--ink-muted);font-size:11.5px;margin-left:6px;}
+  .field input[type="text"],.field textarea,.field select{
+    width:100%;background:var(--card);border:1px solid var(--card-border);border-radius:10px;
+    color:var(--on-card);padding:11px 12px;font-size:14px;font-family:inherit;resize:vertical;}
+  .field textarea{min-height:80px;line-height:1.5;}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--blue);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);
+    border:1px solid var(--card-border);border-radius:10px;padding:12px 14px;margin-bottom:16px;}
+  .toggle-row span{font-size:14px;font-weight:600;color:var(--on-card);}
+  .toggle-row .hint{display:block;color:var(--on-card-muted);font-size:11px;margin-top:2px;font-weight:400;}
+  .switch{position:relative;width:44px;height:26px;flex:0 0 auto;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#333336;border-radius:20px;transition:.15s;}
+  .slider:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;
+    border-radius:50%;transition:.15s;}
+  input:checked + .slider{background:var(--green);}
+  input:checked + .slider:before{transform:translateX(18px);}
+
+  .upload-box{border:1.5px dashed var(--card-border);border-radius:12px;padding:20px;text-align:center;
+    cursor:pointer;color:var(--on-card-muted);font-size:13px;position:relative;overflow:hidden;background:var(--card);}
+  .upload-box:hover{border-color:#4a4a52;}
+  .upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .upload-preview{width:100%;border-radius:10px;overflow:hidden;background:#19191c;}
+  .upload-preview img{width:100%;display:block;max-height:180px;object-fit:cover;}
+  .cover-remove-row{display:flex;justify-content:flex-end;margin-top:8px;}
+
+  .block-item{border:1px solid var(--card-border);border-radius:12px;padding:12px;margin-bottom:10px;background:#111113;}
+  .block-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+  .block-label{font-size:10.5px;font-weight:700;color:var(--on-card-muted);text-transform:uppercase;letter-spacing:0.5px;}
+  .block-actions{display:flex;gap:5px;}
+  .block-textarea{width:100%;min-height:100px;background:#000;border:1px solid var(--card-border);border-radius:8px;
+    color:var(--on-card);padding:10px;font-size:14px;line-height:1.6;font-family:inherit;resize:vertical;}
+  .block-textarea:focus{outline:none;border-color:var(--blue);}
+  .block-caption,.block-name{width:100%;margin-top:9px;background:#000;border:1px solid var(--card-border);border-radius:8px;
+    color:var(--on-card);padding:9px 10px;font-size:13px;font-family:inherit;}
+  .block-caption:focus,.block-name:focus{outline:none;border-color:var(--blue);}
+  .add-block-row{display:flex;gap:10px;margin-top:6px;}
+  .add-block-btn{flex:1;background:transparent;border:1.5px dashed #dcdcdc;color:var(--ink);border-radius:10px;
+    padding:12px;font-size:13px;font-weight:700;cursor:pointer;}
+  .add-block-btn:hover{background:#f5f5f5;}
+
+  .subsection{border:1px solid var(--card-border);border-radius:12px;padding:14px;margin-bottom:14px;background:#111113;}
+  .remove-link{font-size:12px;color:#e8776d;cursor:pointer;background:none;border:none;font-weight:600;margin-top:8px;}
+  .add-link{font-size:13px;color:var(--blue);cursor:pointer;background:none;border:none;font-weight:600;padding:8px 0;}
+
+  .circle-preview{width:64px;height:64px;border-radius:50%;overflow:hidden;background:#000;margin:0 auto 10px auto;}
+  .circle-preview img{width:100%;height:100%;object-fit:cover;}
+  .rect-preview{width:100%;height:110px;border-radius:10px;overflow:hidden;background:#000;margin-bottom:10px;}
+  .rect-preview img{width:100%;height:100%;object-fit:cover;}
+
+  .admin-fab{position:fixed;bottom:96px;right:calc(50% - var(--maxw)/2 + 16px);width:46px;height:46px;
+    border-radius:50%;background:var(--blue);color:#fff;border:none;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(47,111,237,0.35);z-index:41;}
+  @media (max-width:540px){ .admin-fab{right:16px;} }
+  .admin-fab:hover{background:#1f5be0;}
+
+  .top-nav{padding:14px var(--pad-h) 0 var(--pad-h);}
+  .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--blue);font-size:13px;
+    cursor:pointer;background:none;border:none;font-weight:700;padding:0;}
+  .back-link:hover{color:#1f5be0;}
+
+  .admin-hub-row{display:flex;align-items:center;justify-content:space-between;padding:16px;
+    border:1px solid #e5e5e5;border-radius:12px;margin-bottom:10px;cursor:pointer;background:#fff;}
+  .admin-hub-row:hover{background:#fafafa;}
+  .admin-hub-row .ahr-left{display:flex;align-items:center;gap:12px;}
+  .admin-hub-row .ahr-icon{width:38px;height:38px;border-radius:10px;background:var(--card);display:flex;
+    align-items:center;justify-content:center;flex:0 0 auto;}
+  .admin-hub-row span{font-size:14.5px;font-weight:700;color:var(--ink);}
+
+  /* ---------- SETTINGS DRAWER ---------- */
+  .drawer-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.42);opacity:0;pointer-events:none;
+    transition:opacity .2s ease;z-index:60;}
+  .drawer-overlay.open{opacity:1;pointer-events:auto;}
+  .settings-drawer{position:fixed;top:0;right:-100%;height:100%;width:84%;max-width:340px;background:#ffffff;
+    z-index:70;transition:right .28s cubic-bezier(.2,.8,.2,1);box-shadow:-10px 0 30px rgba(0,0,0,0.15);
+    display:flex;flex-direction:column;}
+  .settings-drawer.open{right:0;}
+  .settings-head{display:flex;align-items:center;gap:12px;padding:20px 18px 16px 18px;border-bottom:1px solid #ececec;}
+  .settings-head h3{margin:0;font-size:17px;font-weight:800;color:var(--ink);}
+  .settings-list{flex:1;overflow-y:auto;padding:6px 0;}
+  .settings-row{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;
+    cursor:pointer;border-bottom:1px solid #f2f2f2;}
+  .settings-row:hover{background:#fafafa;}
+  .settings-row span{font-size:14.5px;font-weight:600;color:var(--ink);}
+  .settings-row svg{color:#c7c7c7;flex:0 0 auto;}
+  .settings-footer{padding:18px 18px 24px 18px;text-align:center;border-top:1px solid #f2f2f2;}
+  .settings-footer .ver{font-size:12px;color:var(--ink-muted);margin-bottom:4px;font-weight:600;}
+  .settings-footer .powered{font-size:11px;color:#c7c7c7;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== HOME VIEW ===================== -->
+  <div id="view-home">
+    <div class="topbar">
+      <div class="brand-heading">Explore Today's</div>
+      <div class="topbar-actions">
+        <button class="donate-link" id="donate-btn-home">Donate</button>
+        <button class="login-btn" id="login-btn-home">Login</button>
+      </div>
+    </div>
+    <p class="home-sub">Read And Digest</p>
+
+    <div class="companies-row" id="companies-row"></div>
+    <div class="categories-scroll" id="categories-scroll"></div>
+
+    <div class="section-row">
+      <h2>Latest Updates</h2>
+      <a href="#" id="view-all-link">View all</a>
+    </div>
+
+    <div class="news-list" id="news-list-home"></div>
+    <div class="nav-spacer"></div>
+  </div>
+
+  <!-- ===================== SAVED VIEW ===================== -->
+  <div id="view-saved" class="hidden">
+    <div class="topbar">
+      <div class="brand-heading" style="font-size:24px;">Saved</div>
+    </div>
+    <div class="news-list" id="news-list-saved" style="margin-top:14px;"></div>
+    <div class="nav-spacer"></div>
+  </div>
+
+  <!-- ===================== DETAIL VIEW ===================== -->
+  <div id="view-detail" class="hidden">
+    <div class="detail-topbar">
+      <button class="icon-btn icon-back" id="detail-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="topbar-right">
+        <button class="icon-btn" id="share-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 6l-4-4-4 4M12 2v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="icon-btn" id="detail-bookmark-btn"></button>
+      </div>
+    </div>
+    <div class="detail-content" id="detail-content"></div>
+  </div>
+
+  <!-- ===================== ADMIN HUB ===================== -->
+  <div id="view-admin-home" class="hidden">
+    <div class="top-nav">
+      <button class="back-link" id="adminhome-to-feed">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to feed
+      </button>
+    </div>
+    <div class="admin-header"><h1>Admin</h1></div>
+    <div class="admin-form" style="padding-top:0;">
+      <div class="admin-hub-row" id="hub-news">
+        <div class="ahr-left"><span class="ahr-icon">📰</span><span>Manage News</span></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="admin-hub-row" id="hub-companies">
+        <div class="ahr-left"><span class="ahr-icon">🏢</span><span>Manage Companies</span></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="admin-hub-row" id="hub-categories">
+        <div class="ahr-left"><span class="ahr-icon">🏷️</span><span>Manage Categories</span></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ADMIN: NEWS LIST ===================== -->
+  <div id="view-admin" class="hidden">
+    <div class="top-nav">
+      <button class="back-link" id="admin-to-hub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to admin
+      </button>
+    </div>
+    <div class="admin-header">
+      <h1>Manage News</h1>
+      <button class="btn" id="admin-new-btn">+ New</button>
+    </div>
+    <div class="admin-list" id="admin-list"></div>
+  </div>
+
+  <!-- ===================== ADMIN: NEWS EDITOR ===================== -->
+  <div id="view-editor" class="hidden">
+    <div class="top-nav">
+      <button class="back-link" id="editor-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Cancel
+      </button>
+    </div>
+    <div class="admin-header"><h1 id="editor-title">New Article</h1></div>
+
+    <div class="admin-form">
+      <div class="field">
+        <label>Innovator / Company</label>
+        <input type="text" id="f-company" placeholder="e.g. Lockheed Martin" list="company-suggestions">
+        <datalist id="company-suggestions"></datalist>
+      </div>
+
+      <div class="field">
+        <label>Category <span class="hint">connected to Manage Categories</span></label>
+        <select id="f-category"></select>
+      </div>
+
+      <div class="toggle-row">
+        <div><span>Mark as "NEW"</span><span class="hint">In the live product this will auto-expire after a set number of days</span></div>
+        <label class="switch"><input type="checkbox" id="f-isnew" checked><span class="slider"></span></label>
+      </div>
+
+      <div class="field">
+        <label>Headline</label>
+        <input type="text" id="f-title" placeholder="e.g. Tesla Unveils Next-Gen Battery That Charges 10x Faster">
+      </div>
+
+      <div class="field">
+        <label>Short description <span class="hint">shown as the subtitle on the article page</span></label>
+        <textarea id="f-desc" placeholder="A short one to two sentence summary."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Cover image</label>
+        <div class="upload-box hidden" id="cover-upload-box">
+          Tap to upload cover image
+          <input type="file" accept="image/*" id="f-cover">
+        </div>
+        <div class="upload-preview hidden" id="cover-preview"><img id="cover-preview-img"></div>
+        <div class="cover-remove-row hidden" id="cover-remove-row">
+          <button class="remove-link" id="cover-remove-btn">Remove cover image</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Prepared by</label>
+        <input type="text" id="f-preparedby" placeholder="Trumpet Editorial Team">
+      </div>
+
+      <div class="field">
+        <label>Your News <span class="hint">write below the cover photo — drop an image anywhere and keep writing after it</span></label>
+        <div id="content-blocks"></div>
+        <div class="add-block-row">
+          <button class="add-block-btn" id="add-text-block">+ Add text</button>
+          <button class="add-block-btn" id="add-image-block">+ Add image</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn btn-block" id="save-article">Save Article</button>
+      </div>
+      <div class="btn-row" style="margin-top:10px;" id="delete-row"></div>
+    </div>
+  </div>
+
+  <!-- ===================== ADMIN: COMPANIES ===================== -->
+  <div id="view-admin-companies" class="hidden">
+    <div class="top-nav">
+      <button class="back-link" id="companies-to-hub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to admin
+      </button>
+    </div>
+    <div class="admin-header"><h1>Manage Companies</h1></div>
+    <div class="admin-form" style="padding-top:0;">
+      <div id="companies-editor-list"></div>
+      <div class="add-block-row">
+        <button class="add-block-btn" id="add-company-btn">+ Add company</button>
+      </div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn btn-block" id="save-companies-btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ADMIN: CATEGORIES ===================== -->
+  <div id="view-admin-categories" class="hidden">
+    <div class="top-nav">
+      <button class="back-link" id="categories-to-hub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to admin
+      </button>
+    </div>
+    <div class="admin-header"><h1>Manage Categories</h1></div>
+    <div class="admin-form" style="padding-top:0;">
+      <div id="categories-editor-list"></div>
+      <div class="add-block-row">
+        <button class="add-block-btn" id="add-category-btn">+ Add category</button>
+      </div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn btn-block" id="save-categories-btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== BOTTOM NAV ===================== -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="nav-btn active" data-nav="home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" data-nav="saved">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      Saved
+    </button>
+    <button class="nav-btn" data-nav="settings">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z" stroke="currentColor" stroke-width="1.7"/></svg>
+      Settings
+    </button>
+  </div>
+
+  <!-- ===================== SETTINGS DRAWER ===================== -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="settings-head">
+      <button class="icon-btn icon-back" id="settings-close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <h3>Settings</h3>
+    </div>
+    <div class="settings-list" id="settings-list">
+      <div class="settings-row" data-setting="About Us"><span>About Us</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="settings-row" data-setting="Contact Us"><span>Contact Us</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="settings-row" data-setting="Policy"><span>Policy</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="settings-row" data-setting="Report an Issue"><span>Report an Issue</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="settings-row" data-setting="Donate"><span>Donate</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="settings-row" data-setting="Subscribe"><span>Subscribe</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="settings-footer">
+      <div class="ver">Version 1.0.0</div>
+      <div class="powered">Powered by Paranormal Primitive 1.0</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   DATA LAYER
+--------------------------------------------------------------- */
+const ARTICLES_KEY = "trumpet_articles_v5";
+const COMPANIES_KEY = "trumpet_companies_v5";
+const CATEGORIES_KEY = "trumpet_categories_v5";
+
+function uid(){ return 'a' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+function seedCompanies(){
+  const names = [
+    ["Boeing","BA"],["Airbus","AIR"],["Lockheed Martin","LMT"],["Raytheon (RTX)","RTX"],
+    ["Northrop Grumman","NOC"],["BAE Systems","BAE"],["Nvidia","NVDA"],["TSMC","TSM"],
+    ["Tesla","TSLA"],["SpaceX","SX"],["Blue Origin","BLUE"],["NASA","NASA"],
+    ["Rocket Lab","RL"],["ULA","ULA"],["CERN","CERN"],["ASML","ASML"],
+    ["IBM","IBM"],["WEC","WEC"],["Anduril Industries","ANDR"],["Palantir Technologies","PLTR"],
+    ["CAC Chengdu Aircraft Corporation","CAC"],["SAC Shenyang Aircraft Corporation","SAC"]
+  ];
+  return names.map(([name,initials])=>({id:uid(), name, initials, logo:""}));
+}
+
+function seedCategories(){
+  return [
+    {id:uid(), name:"Aerospace", tag:"FEATURED", image:""},
+    {id:uid(), name:"Energy", tag:"FEATURED", image:""},
+    {id:uid(), name:"Space", tag:"FEATURED", image:""},
+    {id:uid(), name:"Aviation", tag:"FEATURED", image:""}
+  ];
+}
+
+function seedArticles(cats){
+  const now = Date.now();
+  const hrs = h => now - h*3600*1000;
+  return [
+    { id:uid(), company:"Tesla", category:"Energy", isNew:true, saved:false, createdAt:hrs(2),
+      title:"Tesla Unveils Next-Gen Battery That Charges 10x Faster",
+      desc:"A major leap in EV technology brings ultra-fast charging closer to reality.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Current EV batteries take too long to charge, limiting long-distance travel and everyday convenience for drivers."},
+        {type:'text', value:"Tesla's new cell architecture combines a redesigned electrolyte with a silicon-dominant anode, cutting full charge times dramatically while maintaining pack longevity. Internal testing shows the new pack retains over 90% of its capacity after several thousand charge cycles, a meaningful improvement over the previous generation."}
+      ]},
+    { id:uid(), company:"Airbus", category:"Aviation", isNew:true, saved:false, createdAt:hrs(5),
+      title:"Airbus Tests Hydrogen-Powered Flight System Successfully",
+      desc:"A significant milestone toward zero-emission commercial aviation.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Commercial aviation remains one of the hardest sectors to decarbonize, with few viable propulsion alternatives at scale."},
+        {type:'text', value:"Airbus's hydrogen combustion demonstrator completed its first full test cycle, validating a propulsion path that could power short and medium-haul aircraft with zero carbon emissions."}
+      ]},
+    { id:uid(), company:"SpaceX", category:"Space", isNew:true, saved:false, createdAt:hrs(9),
+      title:"SpaceX Completes First Orbital Propellant Transfer Test",
+      desc:"A key step toward refueling spacecraft in orbit for deep space missions.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Long-duration missions beyond Earth orbit require the ability to refuel spacecraft after launch, something no vehicle has demonstrated reliably at scale."},
+        {type:'text', value:"The latest test successfully transferred propellant between two vehicles in orbit, validating docking, thermal management, and fluid transfer systems needed for future lunar and Mars missions."}
+      ]},
+    { id:uid(), company:"Blue Origin", category:"Space", isNew:false, saved:false, createdAt:hrs(30),
+      title:"Blue Origin's New Glenn Completes Third Successful Booster Landing",
+      desc:"Reusability milestones continue to bring down the cost of heavy-lift launch.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Reusable heavy-lift rockets promise to dramatically cut launch costs, but landing large boosters reliably remains a significant engineering challenge."},
+        {type:'text', value:"New Glenn's booster returned to a floating platform for the third consecutive time, demonstrating consistent guidance, engine relight, and structural performance under repeated flight cycles."}
+      ]},
+    { id:uid(), company:"Boeing", category:"Aviation", isNew:false, saved:false, createdAt:hrs(50),
+      title:"Boeing Advances Autonomous Cargo Aircraft Program",
+      desc:"Pilotless freighters could reshape regional and long-haul logistics.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Air cargo demand continues to outpace the supply of qualified pilots and aircraft, driving up shipping costs across the industry."},
+        {type:'text', value:"Boeing's latest test flights validated autonomous taxi, takeoff, cruise, and landing sequences on a converted freighter, with a remote human operator monitoring the full flight as a safety backstop."}
+      ]},
+    { id:uid(), company:"Northrop Grumman", category:"Aerospace", isNew:false, saved:false, createdAt:hrs(80),
+      title:"Northrop Grumman's New Sensor Array Improves Space Weather Forecasting",
+      desc:"Better early warning for solar storms that can disrupt satellites and power grids.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Solar storms can disrupt satellite communications, GPS, and power infrastructure with little warning, costing industries billions annually."},
+        {type:'text', value:"The new orbital sensor array provides continuous monitoring of solar activity, giving operators significantly more lead time to protect critical infrastructure before a storm arrives."}
+      ]},
+    { id:uid(), company:"Lockheed Martin", category:"Aerospace", isNew:false, saved:false, createdAt:hrs(120),
+      title:"Lockheed Martin Debuts Next-Generation Weather Satellite Platform",
+      desc:"Improved imaging resolution aims to strengthen storm tracking accuracy.",
+      cover:"", preparedBy:"Trumpet Editorial Team",
+      blocks:[
+        {type:'text', value:"Accurate storm tracking depends on the resolution and refresh rate of weather satellite imagery, both of which have plateaued on current platforms."},
+        {type:'text', value:"The new satellite bus supports higher-resolution imaging instruments and faster data downlink, allowing forecasters to update storm models more frequently and with greater precision."}
+      ]}
+  ];
+}
+
+function loadJSON(key, seedFn){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw){ const seed = seedFn(); localStorage.setItem(key, JSON.stringify(seed)); return seed; }
+    return JSON.parse(raw);
+  }catch(e){ return seedFn(); }
+}
+function persist(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
+
+let companies = loadJSON(COMPANIES_KEY, seedCompanies);
+let categories = loadJSON(CATEGORIES_KEY, seedCategories);
+let articles = loadJSON(ARTICLES_KEY, ()=>seedArticles(categories));
+
+let currentDetailId = null;
+let editingId = null;
+let cameFrom = 'home';
+let activeCompanyFilter = null;
+let activeCategoryFilter = null;
+
+/* ---------------------------------------------------------------
+   VIEW SWITCHING
+--------------------------------------------------------------- */
+const VIEWS = ['home','saved','detail','admin-home','admin','editor','admin-companies','admin-categories'];
+function showView(name){
+  document.getElementById('view-home').classList.toggle('hidden', name!=='home');
+  document.getElementById('view-saved').classList.toggle('hidden', name!=='saved');
+  document.getElementById('view-detail').classList.toggle('hidden', name!=='detail');
+  document.getElementById('view-admin-home').classList.toggle('hidden', name!=='admin-home');
+  document.getElementById('view-admin').classList.toggle('hidden', name!=='admin');
+  document.getElementById('view-editor').classList.toggle('hidden', name!=='editor');
+  document.getElementById('view-admin-companies').classList.toggle('hidden', name!=='admin-companies');
+  document.getElementById('view-admin-categories').classList.toggle('hidden', name!=='admin-categories');
+
+  const chromeVisible = (name==='home' || name==='saved');
+  document.getElementById('bottom-nav').classList.toggle('hidden', !chromeVisible);
+  fab.classList.toggle('hidden', !chromeVisible);
+
+  if(name==='home' || name==='saved'){
+    document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.nav===name));
+  }
+  window.scrollTo(0,0);
+}
+
+/* ---------------------------------------------------------------
+   ICONS
+--------------------------------------------------------------- */
+const ICON_CHECKWHITE = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_TRASH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_EDIT = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l11-11-4-4L4 16v4z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+const ICON_EDIT_BLACKFAB = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l11-11-4-4L4 16v4z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+const ICON_BOOKMARK_OUTLINE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+const ICON_BOOKMARK_FILLED = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z" fill="#2f6fed" stroke="#2f6fed" stroke-width="2" stroke-linejoin="round"/></svg>';
+const ICON_EMPTY_BOOKMARK = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+/* ---------------------------------------------------------------
+   PLACEHOLDER "CONNECTED" ACTIONS
+--------------------------------------------------------------- */
+function notConnectedYet(label){
+  alert(label + " — this will be wired up in the live product.");
+}
+document.getElementById('donate-btn-home').addEventListener('click', ()=>notConnectedYet('Donate'));
+document.getElementById('login-btn-home').addEventListener('click', ()=>notConnectedYet('Login'));
+document.getElementById('share-btn').addEventListener('click', ()=>notConnectedYet('Share'));
+document.querySelectorAll('.settings-row').forEach(row=>{
+  row.addEventListener('click', ()=> notConnectedYet(row.dataset.setting));
+});
+
+/* ---------------------------------------------------------------
+   TIME HELPERS
+--------------------------------------------------------------- */
+function timeAgoLabel(ts){
+  if(!ts) return '';
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff/60000);
+  if(min < 1) return 'Just now';
+  if(min < 60) return min+'m ago';
+  const hr = Math.floor(min/60);
+  if(hr < 24) return hr+'h ago';
+  const day = Math.floor(hr/24);
+  if(day < 7) return day+'d ago';
+  return Math.floor(day/7)+'w ago';
+}
+function wordCount(a){
+  const text = (a.blocks||[]).filter(b=>b.type==='text').map(b=>b.value||'').join(' ');
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+function readTimeLabel(a){
+  const mins = Math.max(1, Math.round(wordCount(a)/200));
+  return mins + ' min read';
+}
+
+/* ---------------------------------------------------------------
+   COMPANIES ROW (home)
+--------------------------------------------------------------- */
+function renderCompaniesRow(){
+  const row = document.getElementById('companies-row');
+  row.innerHTML = companies.map(c => `
+    <div class="company-card${activeCompanyFilter===c.name?' active':''}" data-company="${escapeAttr(c.name)}">
+      <div class="company-avatar-wrap">
+        <div class="company-avatar">
+          ${c.logo ? `<img src="${c.logo}">` : `<span>${escapeHtml(c.initials||'')}</span>`}
+        </div>
+      </div>
+      <div class="company-name">${escapeHtml(c.name)}</div>
+    </div>
+  `).join('');
+  row.querySelectorAll('.company-card').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      activeCompanyFilter = (activeCompanyFilter === el.dataset.company) ? null : el.dataset.company;
+      activeCategoryFilter = null;
+      renderCompaniesRow(); renderCategoriesRow(); renderHomeList();
+    });
+  });
+
+  const dl = document.getElementById('company-suggestions');
+  if(dl) dl.innerHTML = companies.map(c=>`<option value="${escapeAttr(c.name)}"></option>`).join('');
+}
+
+/* ---------------------------------------------------------------
+   CATEGORY CARDS ROW (home)
+--------------------------------------------------------------- */
+function renderCategoriesRow(){
+  const row = document.getElementById('categories-scroll');
+  row.innerHTML = categories.map(cat => `
+    <div class="category-card${activeCategoryFilter===cat.name?' active':''}" data-category="${escapeAttr(cat.name)}">
+      ${cat.image ? `<img src="${cat.image}">` : ''}
+      <div class="category-card-shade"></div>
+      <div class="category-card-label">
+        <span class="category-card-tag">${escapeHtml(cat.tag||'FEATURED')}</span>
+        <div class="category-card-name">${escapeHtml(cat.name)}</div>
+      </div>
+    </div>
+  `).join('');
+  row.querySelectorAll('.category-card').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      activeCategoryFilter = (activeCategoryFilter === el.dataset.category) ? null : el.dataset.category;
+      activeCompanyFilter = null;
+      renderCompaniesRow(); renderCategoriesRow(); renderHomeList();
+    });
+  });
+
+  // keep the article editor's category <select> in sync
+  const sel = document.getElementById('f-category');
+  if(sel){
+    const current = sel.value;
+    sel.innerHTML = '<option value="">No category</option>' + categories.map(c=>`<option value="${escapeAttr(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+    if(categories.some(c=>c.name===current)) sel.value = current;
+  }
+}
+
+/* ---------------------------------------------------------------
+   NEWS LISTS
+--------------------------------------------------------------- */
+function newsItemHtml(a){
+  return `
+    <div class="news-item" data-id="${a.id}">
+      <div class="news-thumb">${a.cover ? `<img src="${a.cover}">` : `<div style="width:100%;height:100%;background:linear-gradient(160deg,#dcdcdc,#f0f0f0);"></div>`}</div>
+      <div class="news-info">
+        ${a.category ? `<span class="news-category">${escapeHtml(a.category)}</span>` : ''}
+        <h3 class="news-title">${escapeHtml(a.title)}</h3>
+        <div class="news-meta">${timeAgoLabel(a.createdAt)}${a.createdAt ? ' · ' : ''}${readTimeLabel(a)}</div>
+      </div>
+    </div>`;
+}
+
+function renderHomeList(){
+  const list = document.getElementById('news-list-home');
+  let items = articles.slice().reverse();
+  if(activeCompanyFilter) items = items.filter(a=>a.company===activeCompanyFilter);
+  if(activeCategoryFilter) items = items.filter(a=>a.category===activeCategoryFilter);
+  list.parentElement.querySelectorAll('.empty-state').forEach(e=>e.remove());
+  if(items.length===0){
+    list.innerHTML='';
+    const empty = document.createElement('div');
+    empty.className='empty-state';
+    empty.textContent = 'No articles match this filter yet.';
+    list.after(empty);
+    return;
+  }
+  list.innerHTML = items.map(newsItemHtml).join('');
+  list.querySelectorAll('.news-item').forEach(el=>{
+    el.addEventListener('click', ()=>{ cameFrom='home'; openDetail(el.dataset.id); });
+  });
+}
+
+document.getElementById('view-all-link').addEventListener('click', (e)=>{
+  e.preventDefault();
+  activeCompanyFilter = null; activeCategoryFilter = null;
+  renderCompaniesRow(); renderCategoriesRow(); renderHomeList();
+});
+
+function renderSavedList(){
+  const list = document.getElementById('news-list-saved');
+  const items = articles.slice().reverse().filter(a=>a.saved);
+  list.parentElement.querySelectorAll('.empty-state').forEach(e=>e.remove());
+  if(items.length===0){
+    list.innerHTML='';
+    const empty = document.createElement('div');
+    empty.className='empty-state';
+    empty.innerHTML = `${ICON_EMPTY_BOOKMARK}<div>You haven't saved any articles yet.<br>Tap the bookmark icon on an article to save it here.</div>`;
+    list.after(empty);
+    return;
+  }
+  list.innerHTML = items.map(newsItemHtml).join('');
+  list.querySelectorAll('.news-item').forEach(el=>{
+    el.addEventListener('click', ()=>{ cameFrom='saved'; openDetail(el.dataset.id); });
+  });
+}
+
+/* ---------------------------------------------------------------
+   DETAIL RENDER
+--------------------------------------------------------------- */
+function openDetail(id){
+  currentDetailId = id;
+  const a = articles.find(x=>x.id===id);
+  if(!a) return;
+  const c = document.getElementById('detail-content');
+
+  const blocksHtml = (a.blocks||[]).map(b=>{
+    if(b.type==='text'){
+      if(!b.value || !b.value.trim()) return '';
+      const paras = b.value.split(/\n\s*\n/).filter(p=>p.trim().length).map(p=>`<p>${escapeHtml(p.trim())}</p>`).join('');
+      return `<div class="article-body">${paras}</div>`;
+    }else{
+      if(!b.src) return '';
+      return `<figure class="inline-image"><img src="${b.src}" alt="">${b.caption ? `<figcaption>${escapeHtml(b.caption)}</figcaption>` : ''}</figure>`;
+    }
+  }).join('');
+
+  c.innerHTML = `
+    <div class="badge-row">
+      ${a.isNew ? '<span class="badge-new">NEW</span>' : ''}
+      ${a.category ? `<span class="badge-category">${escapeHtml(a.category)}</span>` : ''}
+    </div>
+    <h1>${escapeHtml(a.title)}</h1>
+    <p class="detail-sub">${escapeHtml(a.desc)}</p>
+    <p class="detail-meta">${timeAgoLabel(a.createdAt)}${a.createdAt ? ' · ' : ''}${readTimeLabel(a)}</p>
+
+    ${a.preparedBy ? `
+    <div class="prepared-by">
+      Prepared and brought to you by&nbsp;<span class="pb-name">${escapeHtml(a.preparedBy)}</span>
+      <span class="verify-tick">${ICON_CHECKWHITE}</span>
+    </div>` : ''}
+
+    ${a.cover ? `<div class="cover-image"><img src="${a.cover}" alt=""></div>` : ''}
+    ${blocksHtml}
+  `;
+  updateBookmarkIcon();
+  showView('detail');
+}
+
+function updateBookmarkIcon(){
+  const a = articles.find(x=>x.id===currentDetailId);
+  const btn = document.getElementById('detail-bookmark-btn');
+  btn.innerHTML = (a && a.saved) ? ICON_BOOKMARK_FILLED : ICON_BOOKMARK_OUTLINE;
+}
+document.getElementById('detail-bookmark-btn').addEventListener('click', ()=>{
+  const a = articles.find(x=>x.id===currentDetailId);
+  if(!a) return;
+  a.saved = !a.saved;
+  persist(ARTICLES_KEY, articles);
+  updateBookmarkIcon();
+  renderSavedList();
+});
+document.getElementById('detail-back').addEventListener('click', ()=>{
+  showView(cameFrom==='admin' ? 'admin' : cameFrom);
+});
+
+/* ---------------------------------------------------------------
+   BOTTOM NAV + SETTINGS DRAWER
+--------------------------------------------------------------- */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const target = btn.dataset.nav;
+    if(target==='home'){ showView('home'); }
+    else if(target==='saved'){ renderSavedList(); showView('saved'); }
+    else if(target==='settings'){ openDrawer(); }
+  });
+});
+function openDrawer(){
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('settings-drawer').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('settings-drawer').classList.remove('open');
+}
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+document.getElementById('settings-close').addEventListener('click', closeDrawer);
+
+/* ---------------------------------------------------------------
+   ADMIN HUB
+--------------------------------------------------------------- */
+document.getElementById('adminhome-to-feed').addEventListener('click', ()=> showView('home'));
+document.getElementById('hub-news').addEventListener('click', ()=>{ renderAdminList(); showView('admin'); });
+document.getElementById('hub-companies').addEventListener('click', ()=>{ renderCompaniesEditor(); showView('admin-companies'); });
+document.getElementById('hub-categories').addEventListener('click', ()=>{ renderCategoriesEditor(); showView('admin-categories'); });
+document.getElementById('admin-to-hub').addEventListener('click', ()=> showView('admin-home'));
+document.getElementById('companies-to-hub').addEventListener('click', ()=> showView('admin-home'));
+document.getElementById('categories-to-hub').addEventListener('click', ()=> showView('admin-home'));
+
+/* ---------------------------------------------------------------
+   ADMIN: NEWS LIST
+--------------------------------------------------------------- */
+function renderAdminList(){
+  const list = document.getElementById('admin-list');
+  if(articles.length===0){
+    list.innerHTML = '<div class="empty-state">No articles yet. Tap "+ New" to create one.</div>';
+    return;
+  }
+  list.innerHTML = articles.slice().reverse().map(a=>`
+    <div class="admin-row">
+      ${a.cover ? `<img src="${a.cover}">` : `<div style="width:54px;height:54px;border-radius:8px;background:#19191c;"></div>`}
+      <div class="ar-info">
+        <h4>${escapeHtml(a.title || 'Untitled')}</h4>
+        <span>${escapeHtml(a.company || 'No company')}${a.category ? ' · ' + escapeHtml(a.category) : ''}</span>
+      </div>
+      <div class="ar-actions">
+        <button class="icon-sm" data-view="${a.id}">👁</button>
+        <button class="icon-sm" data-edit="${a.id}">${ICON_EDIT}</button>
+        <button class="icon-sm" data-del="${a.id}">${ICON_TRASH}</button>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-view]').forEach(btn=> btn.addEventListener('click', ()=>{ cameFrom='admin'; openDetail(btn.dataset.view); }));
+  list.querySelectorAll('[data-edit]').forEach(btn=> btn.addEventListener('click', ()=> openEditor(btn.dataset.edit)));
+  list.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(confirm('Delete this article? This cannot be undone.')){
+        articles = articles.filter(a=>a.id!==btn.dataset.del);
+        persist(ARTICLES_KEY, articles);
+        renderAdminList(); renderHomeList(); renderSavedList();
+      }
+    });
+  });
+}
+document.getElementById('admin-new-btn').addEventListener('click', ()=> openEditor(null));
+
+/* ---------------------------------------------------------------
+   ADMIN: NEWS EDITOR
+--------------------------------------------------------------- */
+let editorCoverData = "";
+let editorBlocks = [];
+
+function openEditor(id){
+  editingId = id;
+  const a = id ? articles.find(x=>x.id===id) : null;
+
+  document.getElementById('editor-title').textContent = a ? 'Edit Article' : 'New Article';
+  document.getElementById('f-company').value = a ? a.company : '';
+  renderCategoriesRow(); // ensures the select is populated
+  document.getElementById('f-category').value = a ? (a.category||'') : '';
+  document.getElementById('f-isnew').checked = a ? !!a.isNew : true;
+  document.getElementById('f-title').value = a ? a.title : '';
+  document.getElementById('f-desc').value = a ? a.desc : '';
+  document.getElementById('f-preparedby').value = a ? a.preparedBy : 'Trumpet Editorial Team';
+
+  editorCoverData = a ? (a.cover||'') : '';
+  updateCoverPreview();
+
+  editorBlocks = a ? JSON.parse(JSON.stringify(a.blocks||[])) : [{type:'text', value:''}];
+  renderBlocks();
+
+  const delRow = document.getElementById('delete-row');
+  delRow.innerHTML = a ? `<button class="btn btn-danger btn-block" id="editor-delete">${ICON_TRASH} &nbsp;Delete Article</button>` : '';
+  if(a){
+    document.getElementById('editor-delete').addEventListener('click', ()=>{
+      if(confirm('Delete this article? This cannot be undone.')){
+        articles = articles.filter(x=>x.id!==a.id);
+        persist(ARTICLES_KEY, articles);
+        renderAdminList(); renderHomeList(); renderSavedList();
+        showView('admin');
+      }
+    });
+  }
+  showView('editor');
+}
+document.getElementById('editor-back').addEventListener('click', ()=> showView('admin'));
+
+function updateCoverPreview(){
+  const uploadBox = document.getElementById('cover-upload-box');
+  const wrap = document.getElementById('cover-preview');
+  const img = document.getElementById('cover-preview-img');
+  const removeRow = document.getElementById('cover-remove-row');
+  if(editorCoverData){
+    img.src = editorCoverData; wrap.classList.remove('hidden'); uploadBox.classList.add('hidden'); removeRow.classList.remove('hidden');
+  }else{
+    wrap.classList.add('hidden'); uploadBox.classList.remove('hidden'); removeRow.classList.add('hidden');
+  }
+}
+document.getElementById('f-cover').addEventListener('change', (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{ editorCoverData = reader.result; updateCoverPreview(); };
+  reader.readAsDataURL(file);
+});
+document.getElementById('cover-remove-btn').addEventListener('click', ()=>{
+  editorCoverData = ""; document.getElementById('f-cover').value = ""; updateCoverPreview();
+});
+
+function renderBlocks(){
+  const wrap = document.getElementById('content-blocks');
+  wrap.innerHTML = editorBlocks.map((b,i)=>{
+    if(b.type==='text'){
+      return `<div class="block-item">
+        <div class="block-toolbar">
+          <span class="block-label">Text</span>
+          <div class="block-actions">
+            ${i>0 ? `<button class="icon-sm" data-mv-up="${i}">↑</button>` : ''}
+            ${i<editorBlocks.length-1 ? `<button class="icon-sm" data-mv-down="${i}">↓</button>` : ''}
+            <button class="icon-sm" data-block-del="${i}">${ICON_TRASH}</button>
+          </div>
+        </div>
+        <textarea class="block-textarea" data-block-text="${i}" placeholder="Continue writing your news...">${escapeHtml(b.value||'')}</textarea>
+      </div>`;
+    }else{
+      return `<div class="block-item">
+        <div class="block-toolbar">
+          <span class="block-label">Image</span>
+          <div class="block-actions">
+            ${i>0 ? `<button class="icon-sm" data-mv-up="${i}">↑</button>` : ''}
+            ${i<editorBlocks.length-1 ? `<button class="icon-sm" data-mv-down="${i}">↓</button>` : ''}
+            <button class="icon-sm" data-block-del="${i}">${ICON_TRASH}</button>
+          </div>
+        </div>
+        ${b.src
+          ? `<div class="upload-preview"><img src="${b.src}"></div><button class="remove-link" data-block-imgrm="${i}">Remove image</button>`
+          : `<div class="upload-box">Tap to upload image<input type="file" accept="image/*" data-block-file="${i}"></div>`}
+        <input type="text" class="block-caption" data-block-cap="${i}" placeholder="Caption (optional)" value="${escapeAttr(b.caption||'')}">
+      </div>`;
+    }
+  }).join('');
+
+  wrap.querySelectorAll('[data-block-text]').forEach(ta=> ta.addEventListener('input', ()=>{ editorBlocks[+ta.dataset.blockText].value = ta.value; }));
+  wrap.querySelectorAll('[data-block-cap]').forEach(inp=> inp.addEventListener('input', ()=>{ editorBlocks[+inp.dataset.blockCap].caption = inp.value; }));
+  wrap.querySelectorAll('[data-block-file]').forEach(inp=>{
+    inp.addEventListener('change', (e)=>{
+      const i = +inp.dataset.blockFile; const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ editorBlocks[i].src = reader.result; renderBlocks(); };
+      reader.readAsDataURL(file);
+    });
+  });
+  wrap.querySelectorAll('[data-block-imgrm]').forEach(btn=> btn.addEventListener('click', ()=>{ editorBlocks[+btn.dataset.blockImgrm].src=''; renderBlocks(); }));
+  wrap.querySelectorAll('[data-block-del]').forEach(btn=> btn.addEventListener('click', ()=>{ editorBlocks.splice(+btn.dataset.blockDel,1); renderBlocks(); }));
+  wrap.querySelectorAll('[data-mv-up]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ const i=+btn.dataset.mvUp; [editorBlocks[i-1],editorBlocks[i]]=[editorBlocks[i],editorBlocks[i-1]]; renderBlocks(); });
+  });
+  wrap.querySelectorAll('[data-mv-down]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ const i=+btn.dataset.mvDown; [editorBlocks[i+1],editorBlocks[i]]=[editorBlocks[i],editorBlocks[i+1]]; renderBlocks(); });
+  });
+}
+document.getElementById('add-text-block').addEventListener('click', ()=>{ editorBlocks.push({type:'text', value:''}); renderBlocks(); });
+document.getElementById('add-image-block').addEventListener('click', ()=>{ editorBlocks.push({type:'image', src:'', caption:''}); renderBlocks(); });
+
+document.getElementById('save-article').addEventListener('click', ()=>{
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ alert('Please enter a headline before saving.'); return; }
+  const existing = editingId ? articles.find(x=>x.id===editingId) : null;
+  const cleanBlocks = editorBlocks.filter(b => (b.type==='text' && b.value && b.value.trim()) || (b.type==='image' && b.src));
+  const data = {
+    id: editingId || uid(),
+    company: document.getElementById('f-company').value.trim(),
+    category: document.getElementById('f-category').value,
+    isNew: document.getElementById('f-isnew').checked,
+    saved: existing ? !!existing.saved : false,
+    createdAt: existing ? existing.createdAt : Date.now(),
+    title: title,
+    desc: document.getElementById('f-desc').value.trim(),
+    cover: editorCoverData,
+    preparedBy: document.getElementById('f-preparedby').value.trim() || 'Trumpet Editorial Team',
+    blocks: cleanBlocks
+  };
+  if(editingId){ articles = articles.map(a=> a.id===editingId ? data : a); }
+  else{ articles.push(data); }
+  persist(ARTICLES_KEY, articles);
+  renderAdminList(); renderHomeList(); renderSavedList();
+  showView('admin');
+});
+
+/* ---------------------------------------------------------------
+   ADMIN: COMPANIES EDITOR
+--------------------------------------------------------------- */
+let companiesDraft = [];
+function renderCompaniesEditor(){
+  companiesDraft = JSON.parse(JSON.stringify(companies));
+  drawCompaniesEditor();
+}
+function drawCompaniesEditor(){
+  const wrap = document.getElementById('companies-editor-list');
+  wrap.innerHTML = companiesDraft.map((c,i)=>`
+    <div class="subsection">
+      <div class="block-toolbar">
+        <span class="block-label">Company</span>
+        <button class="icon-sm" data-co-del="${i}">${ICON_TRASH}</button>
+      </div>
+      <div class="circle-preview">${c.logo ? `<img src="${c.logo}">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;">${escapeHtml(c.initials||'')}</div>`}</div>
+      <div class="upload-box" style="margin-bottom:8px;">Tap to upload profile picture<input type="file" accept="image/*" data-co-file="${i}"></div>
+      ${c.logo ? `<button class="remove-link" data-co-imgrm="${i}">Remove profile picture</button>` : ''}
+      <input type="text" class="block-name" data-co-name="${i}" placeholder="Company name" value="${escapeAttr(c.name)}">
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('[data-co-name]').forEach(inp=> inp.addEventListener('input', ()=>{ companiesDraft[+inp.dataset.coName].name = inp.value; }));
+  wrap.querySelectorAll('[data-co-file]').forEach(inp=>{
+    inp.addEventListener('change',(e)=>{
+      const i=+inp.dataset.coFile; const file=e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ companiesDraft[i].logo = reader.result; drawCompaniesEditor(); };
+      reader.readAsDataURL(file);
+    });
+  });
+  wrap.querySelectorAll('[data-co-imgrm]').forEach(btn=> btn.addEventListener('click', ()=>{ companiesDraft[+btn.dataset.coImgrm].logo=''; drawCompaniesEditor(); }));
+  wrap.querySelectorAll('[data-co-del]').forEach(btn=> btn.addEventListener('click', ()=>{ companiesDraft.splice(+btn.dataset.coDel,1); drawCompaniesEditor(); }));
+}
+document.getElementById('add-company-btn').addEventListener('click', ()=>{
+  companiesDraft.push({id:uid(), name:'', initials:'', logo:''});
+  drawCompaniesEditor();
+});
+document.getElementById('save-companies-btn').addEventListener('click', ()=>{
+  companies = companiesDraft.filter(c=>c.name.trim().length).map(c=>({...c, name:c.name.trim(), initials: c.initials || c.name.trim().slice(0,3).toUpperCase()}));
+  persist(COMPANIES_KEY, companies);
+  renderCompaniesRow();
+  showView('admin-home');
+});
+
+/* ---------------------------------------------------------------
+   ADMIN: CATEGORIES EDITOR
+--------------------------------------------------------------- */
+let categoriesDraft = [];
+function renderCategoriesEditor(){
+  categoriesDraft = JSON.parse(JSON.stringify(categories));
+  drawCategoriesEditor();
+}
+function drawCategoriesEditor(){
+  const wrap = document.getElementById('categories-editor-list');
+  wrap.innerHTML = categoriesDraft.map((cat,i)=>`
+    <div class="subsection">
+      <div class="block-toolbar">
+        <span class="block-label">Category</span>
+        <button class="icon-sm" data-cat-del="${i}">${ICON_TRASH}</button>
+      </div>
+      <div class="rect-preview">${cat.image ? `<img src="${cat.image}">` : `<div style="width:100%;height:100%;background:linear-gradient(160deg,#2a2a2e,#0a0a0b);"></div>`}</div>
+      <div class="upload-box" style="margin-bottom:8px;">Tap to upload profile picture<input type="file" accept="image/*" data-cat-file="${i}"></div>
+      ${cat.image ? `<button class="remove-link" data-cat-imgrm="${i}">Remove profile picture</button>` : ''}
+      <input type="text" class="block-name" data-cat-name="${i}" placeholder="Category name (e.g. Trending)" value="${escapeAttr(cat.name)}">
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('[data-cat-name]').forEach(inp=> inp.addEventListener('input', ()=>{ categoriesDraft[+inp.dataset.catName].name = inp.value; }));
+  wrap.querySelectorAll('[data-cat-file]').forEach(inp=>{
+    inp.addEventListener('change',(e)=>{
+      const i=+inp.dataset.catFile; const file=e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ categoriesDraft[i].image = reader.result; drawCategoriesEditor(); };
+      reader.readAsDataURL(file);
+    });
+  });
+  wrap.querySelectorAll('[data-cat-imgrm]').forEach(btn=> btn.addEventListener('click', ()=>{ categoriesDraft[+btn.dataset.catImgrm].image=''; drawCategoriesEditor(); }));
+  wrap.querySelectorAll('[data-cat-del]').forEach(btn=> btn.addEventListener('click', ()=>{ categoriesDraft.splice(+btn.dataset.catDel,1); drawCategoriesEditor(); }));
+}
+document.getElementById('add-category-btn').addEventListener('click', ()=>{
+  categoriesDraft.push({id:uid(), name:'', tag:'FEATURED', image:''});
+  drawCategoriesEditor();
+});
+document.getElementById('save-categories-btn').addEventListener('click', ()=>{
+  categories = categoriesDraft.filter(c=>c.name.trim().length).map(c=>({...c, name:c.name.trim()}));
+  persist(CATEGORIES_KEY, categories);
+  renderCategoriesRow();
+  showView('admin-home');
+});
+
+/* ---------------------------------------------------------------
+   ADMIN ACCESS (floating button)
+--------------------------------------------------------------- */
+const fab = document.createElement('button');
+fab.className = 'admin-fab';
+fab.title = 'Admin';
+fab.innerHTML = ICON_EDIT_BLACKFAB;
+fab.addEventListener('click', ()=> showView('admin-home'));
+document.body.appendChild(fab);
+
+/* ---------------------------------------------------------------
+   UTIL
+--------------------------------------------------------------- */
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+/* ---------------------------------------------------------------
+   INIT
+--------------------------------------------------------------- */
+renderCompaniesRow();
+renderCategoriesRow();
+renderHomeList();
+renderSavedList();
+showView('home');
+</script>
+</body>
+</html>
